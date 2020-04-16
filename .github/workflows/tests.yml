@@ -54,7 +54,7 @@ jobs:
         make -j${MAKE_PARALLEL} install
 
         # rnp
-        git clone https://github.com/rnpgp/rnp "${{ runner.temp }}/rnp"
+        git clone https://github.com/dewyatt/rnp "${{ runner.temp }}/rnp"
         cd "${{ runner.temp }}/rnp"
         git checkout "${{ matrix.rnp }}"
         cmake \
