@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# (c) 2018 Ribose Inc.
+# (c) 2018-2020 Ribose Inc.
 
 require 'json'
 
@@ -183,5 +183,24 @@ describe Rnp::Key.instance_method(:export), skip: !LibRnp::HAVE_RNP_KEY_EXPORT d
     expect(key.secret_key_present?).to be false
 
     expect(Rnp.key_format(exported)).to eql 'GPG'
+  end
+end
+
+describe Rnp::Key.instance_method(:export_revocation),
+         skip: !LibRnp::HAVE_RNP_KEY_EXPORT_REVOCATION do
+  it 'generates the correct packet sequence' do
+    rnp = Rnp.new
+    rnp.load_keys(
+      format: 'GPG',
+      input: Rnp::Input.from_path('spec/data/keyrings/gpg/secring.gpg'),
+    )
+    key = rnp.find_key(keyid: '2FCADF05FFA501BB')
+    key.unlock('password')
+    revocation = key.export_revocation
+    pkts = Rnp.parse(input: Rnp::Input.from_string(revocation))
+    expect(pkts.size).to be 1
+    pkts = pkts[0]
+    expect(pkts['header']['tag.str']).to eql 'Signature'
+    expect(pkts['type.str']).to eql 'Key revocation signature'
   end
 end

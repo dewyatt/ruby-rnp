@@ -264,6 +264,27 @@ class Rnp
       end
     end
 
+    # Export a key revocation.
+    #
+    # @param hash [String] hash algorithm used to calculate the
+    #   signature. If nil, a default will be used.
+    # @param code [String] reason for revocation code. Possible values:
+    #   * no
+    #   * superseded
+    #   * compromised
+    #   * retired
+    # @param reason [String] textual representation of the reason
+    #   for revocation.
+    # @param output [Output] the output to write the exported key.
+    #   If nil, the result will be returned directly as a String.
+    # @return [nil, String]
+    def export_revocation(hash: nil, code: nil, reason: nil, output: nil)
+      Output.default(output) do |output_|
+        Rnp.call_ffi(:rnp_key_export_revocation, @ptr, output_.ptr, 0, hash,
+                     code, reason)
+      end
+    end
+
     # Returns the raw public key data as PGP packets.
     #
     # @return [String]
